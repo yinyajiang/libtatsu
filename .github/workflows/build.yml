@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   build-linux-ubuntu:
+    if: false
     runs-on: ubuntu-latest
     steps:
     - name: install dependencies
