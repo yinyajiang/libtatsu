@@ -113,7 +113,7 @@ plist_t tss_request_new(plist_t overrides)
 
 	plist_dict_set_item(request, "@HostPlatformInfo",
 #ifdef WIN32
-		plist_new_string("windows")
+		plist_new_string("mac")
 #else
 		plist_new_string("mac")
 #endif
