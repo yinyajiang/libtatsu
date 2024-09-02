@@ -181,9 +181,10 @@ int tss_request_add_local_policy_tags(plist_t request, plist_t parameters)
 
 int tss_parameters_add_from_manifest(plist_t parameters, plist_t build_identity, bool include_manifest)
 {
+	const char *fix_key[] = {"ApBoardID", "ApChipID"};
 	const char *key_list[] = {
 		"UniqueBuildID", "Ap,OSLongVersion", "Ap,OSReleaseType", "Ap,ProductType", "Ap,SDKPlatform",
-        "Ap,SikaFuse", "Ap,Target", "Ap,TargetType", "ApBoardID", "ApChipID",
+        "Ap,SikaFuse", "Ap,Target", "Ap,TargetType",
         "ApSecurityDomain", "BMU,BoardID", "BMU,ChipID", "BbChipID", "BbProvisioningManifestKeyHash",
         "BbActivationManifestKeyHash", "BbCalibrationManifestKeyHash", "Ap,ProductMarketingVersion",
         "BbFactoryActivationManifestKeyHash", "BbFDRSecurityKeyHash", "BbSkeyId", "SE,ChipID",
@@ -199,6 +200,11 @@ int tss_parameters_add_from_manifest(plist_t parameters, plist_t build_identity,
 		"Cryptex1,MobileAssetBrainVolume", "Cryptex1,MobileAssetBrainTrustCache" , "USBPortController1,BoardID",
 		"USBPortController1,ChipID", "USBPortController1,SecurityDomain"
 	};
+
+	for (int i = 0; i < sizeof(fix_key) / sizeof(fix_key[0]); i++){
+		const char *key = fix_key[i];
+		plist_dict_copy_item(parameters, build_identity, key, NULL);
+	}
 	for (int i = 0; i < sizeof(key_list) / sizeof(key_list[0]); i++){
 		const char *key = key_list[i];
 		plist_dict_copy_item(parameters, build_identity, key, NULL);
