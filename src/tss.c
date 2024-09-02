@@ -320,45 +320,29 @@ int tss_request_add_ap_img4_tags(plist_t request, plist_t parameters)
 		return -1;
 	}
 
-	plist_dict_copy_string(request, parameters, "Ap,OSLongVersion", NULL);
-
-	if (plist_dict_copy_data(request, parameters, "ApNonce", NULL) < 0) {
-		error("ERROR: Unable to find required ApNonce in parameters\n");
-		return -1;
+	char *keys_to_copy[] = {
+		"ApNonce", "ApProductionMode", "ApSecurityMode", "Ap,OSLongVersion", "ApSepNonce",
+		"Ap,SDKPlatform", "PearlCertificationRootPub", "NeRDEpoch", "ApSikaFuse", "Ap,SikaFuse", "Ap,OSReleaseType",
+		"Ap,ProductType", "Ap,Target", "Ap,TargetType", "Ap,LocalPolicy"};
+	for (int i = 0; i < sizeof(keys_to_copy) / sizeof(keys_to_copy[0]); i++) {
+		char *key = keys_to_copy[i];
+		plist_t item = plist_dict_get_item(parameters, key);
+		if (!item) {
+			continue;
+		}
+		if (!strcmp(key, "ApSepNonce")){
+			key = "SepNonce";
+		} else if (!strcmp(key, "ApSikaFuse")){
+			key = "Ap,SikaFuse";
+		}
+		plist_dict_set_item(request, key, plist_copy(item));
 	}
-
+			
+	plist_dict_set_item(request, "UID_MODE", plist_new_bool(plist_dict_get_bool(parameters, "UID_MODE")));
 	plist_dict_set_item(request, "@ApImg4Ticket", plist_new_bool(1));
+	plist_dict_set_item(request, "@BBTicket", plist_new_bool(1));
 
-	if (!plist_dict_get_item(request, "ApSecurityMode")) {
-		/* copy from parameters if available */
-		if (plist_dict_copy_bool(request, parameters, "ApSecurityMode", NULL) < 0) {
-			error("ERROR: Unable to find required ApSecurityMode in parameters\n");
-			return -1;
-		}
-	}
-	if (!plist_dict_get_item(request, "ApProductionMode")) {
-		/* ApProductionMode */
-		if (plist_dict_copy_bool(request, parameters, "ApProductionMode", NULL) < 0) {
-			error("ERROR: Unable to find required ApProductionMode in parameters\n");
-			return -1;
-		}
-	}
-
-	plist_dict_copy_data(request, parameters, "SepNonce", "ApSepNonce");
-	plist_dict_copy_uint(request, parameters, "NeRDEpoch", NULL);
-	plist_dict_copy_data(request, parameters, "PearlCertificationRootPub", NULL);
-
-	if (plist_dict_get_item(parameters, "UID_MODE")) {
-		plist_dict_copy_item(request, parameters, "UID_MODE", NULL);
-	} else if (plist_dict_get_bool(parameters, "RequiresUIDMode")) {
-		// The logic here is missing why this value is expected to be 'false'
-		plist_dict_set_item(request, "UID_MODE", plist_new_bool(0));
-	}
-
-	// FIXME: I didn't understand yet when this value is set, so for now we use a workaround
-	if (plist_dict_get_item(parameters, "ApSikaFuse")) {
-		plist_dict_copy_item(request, parameters, "Ap,SikaFuse", "ApSikaFuse");
-	} else if (plist_dict_get_bool(parameters, "RequiresUIDMode")) {
+	if (plist_dict_get_bool(parameters, "RequiresUIDMode")) {
 		// Workaround: We have only seen Ap,SikaFuse together with UID_MODE
 		plist_dict_set_item(request, "Ap,SikaFuse", plist_new_int(0));
 	}
