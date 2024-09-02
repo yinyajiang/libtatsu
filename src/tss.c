@@ -320,12 +320,12 @@ int tss_request_add_ap_img4_tags(plist_t request, plist_t parameters)
 		return -1;
 	}
 
-	char *keys_to_copy[] = {
+	const char *keys_to_copy[] = {
 		"ApNonce", "ApProductionMode", "ApSecurityMode", "Ap,OSLongVersion", "ApSepNonce",
 		"Ap,SDKPlatform", "PearlCertificationRootPub", "NeRDEpoch", "ApSikaFuse", "Ap,SikaFuse", "Ap,OSReleaseType",
 		"Ap,ProductType", "Ap,Target", "Ap,TargetType", "Ap,LocalPolicy"};
 	for (int i = 0; i < sizeof(keys_to_copy) / sizeof(keys_to_copy[0]); i++) {
-		char *key = keys_to_copy[i];
+		const char *key = keys_to_copy[i];
 		plist_t item = plist_dict_get_item(parameters, key);
 		if (!item) {
 			continue;
