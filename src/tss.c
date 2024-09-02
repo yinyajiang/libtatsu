@@ -181,121 +181,30 @@ int tss_request_add_local_policy_tags(plist_t request, plist_t parameters)
 
 int tss_parameters_add_from_manifest(plist_t parameters, plist_t build_identity, bool include_manifest)
 {
-	plist_t node = NULL;
-
-	if (plist_dict_copy_data(parameters, build_identity, "UniqueBuildID", NULL) < 0) {
-		error("ERROR: Unable to find UniqueBuildID node\n");
-		return -1;
+	const char *key_list[] = {
+		"UniqueBuildID", "Ap,OSLongVersion", "Ap,OSReleaseType", "Ap,ProductType", "Ap,SDKPlatform",
+        "Ap,SikaFuse", "Ap,Target", "Ap,TargetType", "ApBoardID", "ApChipID",
+        "ApSecurityDomain", "BMU,BoardID", "BMU,ChipID", "BbChipID", "BbProvisioningManifestKeyHash",
+        "BbActivationManifestKeyHash", "BbCalibrationManifestKeyHash", "Ap,ProductMarketingVersion",
+        "BbFactoryActivationManifestKeyHash", "BbFDRSecurityKeyHash", "BbSkeyId", "SE,ChipID",
+        "Savage,ChipID", "Savage,PatchEpoch", "Yonkers,BoardID", "Yonkers,ChipID",
+        "Yonkers,PatchEpoch", "Rap,BoardID", "Rap,ChipID", "Rap,SecurityDomain", "Baobab,BoardID",
+        "Baobab,ChipID", "Baobab,ManifestEpoch", "Baobab,SecurityDomain", "eUICC,ChipID",
+        "PearlCertificationRootPub", "Timer,BoardID,1", "Timer,BoardID,2", "Timer,ChipID,1",
+        "Timer,ChipID,2", "Timer,SecurityDomain,1", "Timer,SecurityDomain,2", "Manifest",
+		"NeRDEpoch","Cryptex1,ChipID", "Cryptex1,Type", "Cryptex1,SubType", "Cryptex1,ProductClass",
+		"Cryptex1,UseProductClass", "Cryptex1,NonceDomain", "Cryptex1,Version", "Cryptex1,PreauthorizationVersion",
+		"Cryptex1,FakeRoot", "Cryptex1,SystemOS", "Cryptex1,SystemVolume", "Cryptex1,SystemTrustCache",
+		"Cryptex1,AppOS", "Cryptex1,AppVolume", "Cryptex1,AppTrustCache", "Cryptex1,MobileAssetBrainOS",
+		"Cryptex1,MobileAssetBrainVolume", "Cryptex1,MobileAssetBrainTrustCache" , "USBPortController1,BoardID",
+		"USBPortController1,ChipID", "USBPortController1,SecurityDomain"
+	};
+	for (int i = 0; i < sizeof(key_list) / sizeof(key_list[0]); i++){
+		const char *key = key_list[i];
+		plist_dict_copy_item(parameters, build_identity, key, NULL);
 	}
 
-	plist_dict_copy_string(parameters, build_identity, "Ap,OSLongVersion", NULL);
-
-	if (plist_dict_copy_uint(parameters, build_identity, "ApChipID", NULL) < 0) {;
-		error("ERROR: Unable to find ApChipID node\n");
-		return -1;
-	}
-
-	if (plist_dict_copy_uint(parameters, build_identity, "ApBoardID", NULL) < 0) {
-		error("ERROR: Unable to find ApBoardID node\n");
-		return -1;
-	}
-
-	plist_dict_copy_uint(parameters, build_identity, "ApSecurityDomain", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "BMU,BoardID", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "BMU,ChipID", NULL);
-
-	if (plist_dict_copy_uint(parameters, build_identity, "BbChipID", NULL) < 0) {
-		debug("NOTE: Unable to find BbChipID node\n");
-	}
-
-	if (plist_dict_copy_data(parameters, build_identity, "BbProvisioningManifestKeyHash", NULL) < 0) {
-		debug("NOTE: Unable to find BbProvisioningManifestKeyHash node\n");
-	}
-
-	if (plist_dict_copy_data(parameters, build_identity, "BbActivationManifestKeyHash", NULL) < 0) {
-		debug("NOTE: Unable to find BbActivationManifestKeyHash node\n");
-	}
-
-	if (plist_dict_copy_data(parameters, build_identity, "BbCalibrationManifestKeyHash", NULL) < 0) {
-		debug("NOTE: Unable to find BbCalibrationManifestKeyHash node\n");
-	}
-
-	if (plist_dict_copy_data(parameters, build_identity, "BbFactoryActivationManifestKeyHash", NULL) < 0) {
-		debug("NOTE: Unable to find BbFactoryActivationManifestKeyHash node\n");
-	}
-
-	if (plist_dict_copy_data(parameters, build_identity, "BbFDRSecurityKeyHash", NULL) < 0) {
-		debug("NOTE: Unable to find BbFDRSecurityKeyHash node\n");
-	}
-
-	/* BbSkeyId - Used by XMM 6180/GSM */
-	if (plist_dict_copy_data(parameters, build_identity, "BbSkeyId", NULL) < 0) {
-		debug("NOTE: Unable to find BbSkeyId node\n");
-	}
-
-	/* SE,ChipID - Used for SE firmware request */
-	plist_dict_copy_uint(parameters, build_identity, "SE,ChipID", NULL);
-
-	/* Savage,ChipID - Used for Savage firmware request */
-	plist_dict_copy_uint(parameters, build_identity, "Savage,ChipID", NULL);
-
-	/* add Savage,PatchEpoch - Used for Savage firmware request */
-	plist_dict_copy_uint(parameters, build_identity, "Savage,PatchEpoch", NULL);
-
-	/* Yonkers,BoardID - Used for Yonkers firmware request */
-	plist_dict_copy_uint(parameters, build_identity, "Yonkers,BoardID", NULL);
-
-	/* Yonkers,ChipID - Used for Yonkers firmware request */
-	plist_dict_copy_uint(parameters, build_identity, "Yonkers,ChipID", NULL);
-
-	/* add Yonkers,PatchEpoch - Used for Yonkers firmware request */
-	plist_dict_copy_uint(parameters, build_identity, "Yonkers,PatchEpoch", NULL);
-
-	plist_dict_copy_uint(parameters, build_identity, "Rap,BoardID", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Rap,ChipID", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Rap,SecurityDomain", NULL);
-
-	plist_dict_copy_uint(parameters, build_identity, "Baobab,BoardID", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Baobab,ChipID", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Baobab,ManifestEpoch", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Baobab,SecurityDomain", NULL);
-
-	plist_dict_copy_uint(parameters, build_identity, "eUICC,ChipID", NULL);
-
-	plist_dict_copy_uint(parameters, build_identity, "NeRDEpoch", NULL);
-	plist_dict_copy_data(parameters, build_identity, "PearlCertificationRootPub", NULL);
-
-	plist_dict_copy_uint(parameters, build_identity, "Timer,BoardID,1", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Timer,BoardID,2", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Timer,ChipID,1", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Timer,ChipID,2", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Timer,SecurityDomain,1", NULL);
-	plist_dict_copy_uint(parameters, build_identity, "Timer,SecurityDomain,2", NULL);
-
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,ChipID", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,Type", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,SubType", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,ProductClass", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,UseProductClass", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,NonceDomain", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,Version", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,PreauthorizationVersion", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,FakeRoot", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,SystemOS", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,SystemVolume", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,SystemTrustCache", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,AppOS", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,AppVolume", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,AppTrustCache", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,MobileAssetBrainOS", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,MobileAssetBrainVolume", NULL);
-	plist_dict_copy_item(parameters, build_identity, "Cryptex1,MobileAssetBrainTrustCache", NULL);
-
-	plist_dict_copy_item(parameters, build_identity, "USBPortController1,BoardID", NULL);
-	plist_dict_copy_item(parameters, build_identity, "USBPortController1,ChipID", NULL);
-	plist_dict_copy_item(parameters, build_identity, "USBPortController1,SecurityDomain", NULL);
-
-	node = plist_dict_get_item(build_identity, "Info");
+	plist_t node = plist_dict_get_item(build_identity, "Info");
 	if (node) {
 		plist_dict_copy_bool(parameters, node, "RequiresUIDMode", NULL);
 	}
@@ -323,7 +232,7 @@ int tss_request_add_ap_img4_tags(plist_t request, plist_t parameters)
 	const char *keys_to_copy[] = {
 		"ApNonce", "ApProductionMode", "ApSecurityMode", "Ap,OSLongVersion", "ApSepNonce",
 		"Ap,SDKPlatform", "PearlCertificationRootPub", "NeRDEpoch", "ApSikaFuse", "Ap,SikaFuse", "Ap,OSReleaseType",
-		"Ap,ProductType", "Ap,Target", "Ap,TargetType", "Ap,LocalPolicy"};
+		"Ap,ProductType", "Ap,Target", "Ap,TargetType"};
 	for (int i = 0; i < sizeof(keys_to_copy) / sizeof(keys_to_copy[0]); i++) {
 		const char *key = keys_to_copy[i];
 		plist_t item = plist_dict_get_item(parameters, key);
